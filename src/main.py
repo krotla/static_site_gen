@@ -47,6 +47,26 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 
     return splitted
 
+def split_nodes_image(old_nodes):
+    splitted = []
+    for old_node in old_nodes:
+        if old_node.text_type != TextType.TEXT:
+            splitted.append(old_node)
+            continue
+        text_to_split = old_node.text
+        images = extract_markdown_images(text_to_split)
+        for image_alt, image_link in images:            
+            sections = text_to_split.split(f"![{image_alt}]({image_link})", 1)
+            splitted.append(TextNode(sections[0], TextType.TEXT))
+            splitted.append(TextNode(image_alt, TextType.IMAGE, image_link))
+            text_to_split = sections[1]
+        if text_to_split != '':
+            splitted.append(TextNode(text_to_split, TextType.TEXT))
+    return splitted
+
+def split_nodes_link(old_nodes):
+    pass
+
 def extract_markdown_images(text):    
     matches = re.findall(IMG_PATTERN, text)
     return matches
