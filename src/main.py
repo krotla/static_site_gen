@@ -27,6 +27,13 @@ def text_node_to_html_node(text_node):
         case _:
             raise Exception("This TextType does not exist!") 
 
+def markdown_to_blocks(markdown):
+    blocks = list(map(str.strip, markdown.split("\n\n")))
+    for block in blocks[:]:        
+        if block == "":
+            blocks.remove(block)
+    return blocks
+
 def text_to_textnodes(text):
     text_nodes = [TextNode(text, TextType.TEXT)]
     text_nodes = split_nodes_delimiter(text_nodes, "**", TextType.BOLD)
