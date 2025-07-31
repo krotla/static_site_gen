@@ -3,7 +3,7 @@ import unittest
 from textnode import TextNode, TextType
 from main import text_node_to_html_node, split_nodes_delimiter, \
                 extract_markdown_images, extract_markdown_links, \
-                split_nodes_image
+                split_nodes_image, split_nodes_link
 
 
 class TestTextNode(unittest.TestCase):
@@ -85,6 +85,22 @@ class TestTextNode(unittest.TestCase):
             new_nodes,
         )
 
+    def test_split_nodes_links(self):
+        node = TextNode(
+            "This is text with an [Cool link](https://www.w3schools.com/python/default.asp) and also ![image](https://i.imgur.com/3elNhQu.png). There is also a [GO link](https://www.w3schools.com/go/index.php) here.",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text with an ", TextType.TEXT),
+                TextNode("Cool link", TextType.LINK, "https://www.w3schools.com/python/default.asp"),
+                TextNode(" and also ![image](https://i.imgur.com/3elNhQu.png). There is also a ", TextType.TEXT),
+                TextNode("GO link", TextType.LINK, "https://www.w3schools.com/go/index.php"),
+                TextNode(" here.", TextType.TEXT),
+            ],
+            new_nodes,
+        )
 
 if __name__ == "__main__":
     unittest.main()

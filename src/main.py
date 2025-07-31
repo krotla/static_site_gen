@@ -4,7 +4,7 @@ from textnode import TextNode, TextType
 from htmlnode import LeafNode
 
 IMG_PATTERN = r"\!\[(.*?)\]\((.*?)\)"
-LINK_PATTERN = r"\[(.*?)\]\((.*?)\)"
+LINK_PATTERN = r"(?<!\!)\[(.*?)\]\((.*?)\)"
 
 def main():
     tn = TextNode("Example o a bold text", TextType.BOLD)
@@ -65,7 +65,21 @@ def split_nodes_image(old_nodes):
     return splitted
 
 def split_nodes_link(old_nodes):
-    pass
+    splitted = []
+    for old_node in old_nodes:
+        if old_node.text_type != TextType.TEXT:
+            splitted.append(old_node)
+            continue
+        text_to_split = old_node.text
+        links = extract_markdown_links(text_to_split)
+        for name, link in links:            
+            sections = text_to_split.split(f"[{name}]({link})", 1)
+            splitted.append(TextNode(sections[0], TextType.TEXT))
+            splitted.append(TextNode(name, TextType.LINK, link))
+            text_to_split = sections[1]
+        if text_to_split != '':
+            splitted.append(TextNode(text_to_split, TextType.TEXT))
+    return splitted
 
 def extract_markdown_images(text):    
     matches = re.findall(IMG_PATTERN, text)
