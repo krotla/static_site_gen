@@ -5,6 +5,7 @@ from main import text_node_to_html_node, split_nodes_delimiter, \
                 extract_markdown_images, extract_markdown_links, \
                 split_nodes_image, split_nodes_link, text_to_textnodes, \
                 markdown_to_blocks
+from markdown import BlockType, block_to_block_type
 
 
 class TestTextNode(unittest.TestCase):
@@ -141,6 +142,51 @@ This is the same paragraph on a new line
                 "- This is a list\n- with items",
             ],
         )
+
+    def test_block_to_block_type(self):
+        md = "This is **bolded** paragraph"
+        block_type = block_to_block_type(md)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
+
+        md = """
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line"""
+        block_type = block_to_block_type(md)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
+
+        md = \
+"""- This is a list
+- with items"""
+        block_type = block_to_block_type(md)
+        self.assertEqual(block_type, BlockType.UNORDERED_LIST)
+
+        md = \
+"""1. This is a list
+2. with items"""
+        block_type = block_to_block_type(md)
+        self.assertEqual(block_type, BlockType.ORDERED_LIST)
+
+        md = "# This is **bolded** paragraph"
+        block_type = block_to_block_type(md)
+        self.assertEqual(block_type, BlockType.HEADING)
+
+        md = "### This is **bolded** paragraph"
+        block_type = block_to_block_type(md)
+        self.assertEqual(block_type, BlockType.HEADING)
+        
+        md = \
+"""```
+if success:
+        print('Hurra!')
+```"""
+        block_type = block_to_block_type(md)
+        self.assertEqual(block_type, BlockType.CODE)
+
+        md = \
+""">Być albo nie być,
+>oto jest pytanie"""
+        block_type = block_to_block_type(md)
+        self.assertEqual(block_type, BlockType.QUOTE)
 
 if __name__ == "__main__":
     unittest.main()
