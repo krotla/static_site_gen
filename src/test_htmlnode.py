@@ -147,5 +147,39 @@ the **same** even with inline stuff
             "<div><blockquote>This is <b>bolded</b> paragraph text in a p tag here</blockquote><blockquote>This is another paragraph with <i>italic</i> text and <code>code</code> here</blockquote></div>",
         )
 
+    def test_unordered_list(self):
+        md = """
+- First unordered list item
+- Second unordered list item
+- Third unordered list item
+
+- This is single unordered list item with _italic_ text and `code` here
+
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ul><li>First unordered list item</li><li>Second unordered list item</li><li>Third unordered list item</li></ul><ul><li>This is single unordered list item with <i>italic</i> text and <code>code</code> here</li></ul></div>",
+        )
+
+    def test_ordered_list(self):
+        md = """
+1. First ordered list item
+1. Second ordered list item
+1. Third ordered list item
+
+1. This is single ordered **list item** with _italic_ text and `code` here
+
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ol><li>First ordered list item</li><li>Second ordered list item</li><li>Third ordered list item</li></ol><ol><li>This is single ordered <b>list item</b> with <i>italic</i> text and <code>code</code> here</li></ol></div>",
+        )
+
 if __name__ == "__main__":
     unittest.main()

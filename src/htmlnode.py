@@ -1,8 +1,10 @@
+import re
 from functools import reduce
 
 from markdown import BlockType, markdown_to_blocks, block_to_block_type
 from textnode import TextType, text_to_textnodes
 
+SPLIT_OL_PATTERN = r"^(?:\d\.\s)"
 
 class HtmlNode():
 
@@ -90,10 +92,26 @@ def markdown_to_html_node(md):
                 md_block = " ".join([line.lstrip(">") for line in md_block_lines])
                 children_html_nodes = markdown_to_children(md_block)
                 html_block_node = ParentNode("blockquote",children_html_nodes)
-            # case BlockType.UNORDERED_LIST:
-            #     html_block_node = ParentNode("ul",children_html_nodes)
-            # case BlockType.ORDERED_LIST:
-            #     html_block_node = ParentNode("ol",children_html_nodes)
+            case BlockType.UNORDERED_LIST:
+                html_item_nodes = []
+                md_ul = md_block.split("- ")
+                for md_li in md_ul:
+                    if md_li == '':
+                        continue
+                    md_li = md_li.strip()
+                    children_html_li_nodes = markdown_to_children(md_li)
+                    html_item_nodes.append(ParentNode("li",children_html_li_nodes))
+                html_block_node = ParentNode("ul",html_item_nodes)
+            case BlockType.ORDERED_LIST:
+                html_item_nodes = []
+                md_ol = re.split(SPLIT_OL_PATTERN, md_block, flags=re.MULTILINE)
+                for md_li in md_ol:
+                    if md_li == '':
+                        continue
+                    md_li = md_li.strip()
+                    children_html_li_nodes = markdown_to_children(md_li)
+                    html_item_nodes.append(ParentNode("li",children_html_li_nodes))
+                html_block_node = ParentNode("ol",html_item_nodes)
         html_block_nodes.append(html_block_node)
     return ParentNode("div", html_block_nodes)
 
