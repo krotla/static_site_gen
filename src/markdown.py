@@ -1,5 +1,4 @@
 import re
-
 from enum import Enum
 
 MD_HEADING_PATTERN = r"^(#{1,6})\s{1}(.*?)\s*$"
@@ -15,6 +14,13 @@ class BlockType(Enum):
     QUOTE = 'quote'
     UNORDERED_LIST = 'unordered_list'
     ORDERED_LIST = 'ordered_list'
+
+def markdown_to_blocks(markdown):
+    blocks = list(map(str.strip, markdown.split("\n\n")))
+    for block in blocks[:]:        
+        if block == "":
+            blocks.remove(block)
+    return blocks
 
 def block_to_block_type(text_block):
     heading_match =  re.findall(MD_HEADING_PATTERN, text_block)
@@ -40,4 +46,3 @@ def block_to_block_type(text_block):
         return BlockType.ORDERED_LIST
     
     return BlockType.PARAGRAPH
-
