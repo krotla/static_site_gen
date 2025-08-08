@@ -64,13 +64,16 @@ def split_nodes_image(old_nodes):
         if old_node.text_type != TextType.TEXT:
             splitted.append(old_node)
             continue
+        
         text_to_split = old_node.text
         images = _extract_markdown_images(text_to_split)
         for image_alt, image_link in images:            
             sections = text_to_split.split(f"![{image_alt}]({image_link})", 1)
-            splitted.append(TextNode(sections[0], TextType.TEXT))
+            if sections[0] != '':
+                splitted.append(TextNode(sections[0], TextType.TEXT))
             splitted.append(TextNode(image_alt, TextType.IMAGE, image_link))
             text_to_split = sections[1]
+
         if text_to_split != '':
             splitted.append(TextNode(text_to_split, TextType.TEXT))
     return splitted

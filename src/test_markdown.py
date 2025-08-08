@@ -1,6 +1,6 @@
 import unittest
      
-from markdown import BlockType, markdown_to_blocks, block_to_block_type                     
+from markdown import BlockType, markdown_to_blocks, block_to_block_type, extract_title                    
 from textnode import _extract_markdown_images, _extract_markdown_links
 
 
@@ -82,7 +82,29 @@ if success:
 >oto jest pytanie"""
         block_type = block_to_block_type(md)
         self.assertEqual(block_type, BlockType.QUOTE)
+    
+    def test_extract_title(self):
+        md = \
+"""## Next heading 2
 
+### This is another heading  3 with _italic_ text and `code` here
+
+#### Next heading 4
+
+>   To jest cytat
+>dwuwierszowy
+
+# This _is_ **bolded** `heading` 1
+
+##### Next heading 5
+
+# Second title?
+
+###### Next heading 6
+
+"""
+        title = extract_title(md)
+        self.assertEqual(title, "This is bolded heading 1")
 
 if __name__ == "__main__":
     unittest.main()

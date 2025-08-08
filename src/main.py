@@ -1,14 +1,15 @@
 import os
 import shutil
 
-from markdown import BlockType, markdown_to_blocks, block_to_block_type
+from markdown import BlockType, markdown_to_blocks, block_to_block_type, extract_title
 from textnode import TextNode, TextType
-from htmlnode import ParentNode, LeafNode
+from htmlnode import ParentNode, LeafNode, markdown_to_html_node
 
 
 def main():
     try:
         clean_and_copy("./static", "./public")
+        generate_page("content/index.md", "template.html", "public/index.html")
     except Exception as e:
         print(e)
 
@@ -49,5 +50,23 @@ def copy_dir(source, destination):
         else:
             shutil.copy(src_path, dest_path)
 
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+    try:
+        with open(from_path) as md_file:
+            md = md_file.read()
+        with open(template_path) as template_file:
+            template = template_file.read()
+        html_content_node = markdown_to_html_node(md)
+        html_content = html_content_node.to_html()
+        title = extract_title(md)
+        html_page = template.replace("{{ Title }}", title).replace("{{ Content }}", html_content)
+        dest_dir_path = os.path.dirname(dest_path)
+        if not os.path.exists(dest_dir_path):
+            os.mkdir(dest_dir_path)
+        with open(dest_path,"w") as html_file:
+            html_file.write(html_page)
+    except Exception as e:
+        print(e)
 
 main()

@@ -18,7 +18,7 @@ class HtmlNode():
         raise NotImplementedError()
     
     def props_to_html(self):
-        if not self.props:
+        if self.props is None:
             return ""
         return reduce(lambda str, atr: str + f" {atr[0]}=\"{atr[1]}\"", 
                       self.props.items(), "")
@@ -32,9 +32,9 @@ class LeafNode(HtmlNode):
         super(LeafNode,self).__init__(tag, value, None, props)
 
     def to_html(self):
-        if not self.value:
+        if self.value is None:
             raise ValueError("Leaf node must have value!")
-        if not self.tag:
+        if self.tag is None:
             return self.value
         return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
     
@@ -44,9 +44,9 @@ class ParentNode(HtmlNode):
         super(ParentNode,self).__init__(tag, None, children, props)
 
     def to_html(self):
-        if not self.tag:
+        if self.tag is None:
             raise ValueError("Parent node must have value!")
-        if not self.children:
+        if self.children is None:
             raise ValueError("Parent node must have at least one child!")
         return f"<{self.tag}{self.props_to_html()}>{"".join([child.to_html() for child in self.children])}</{self.tag}>"
         

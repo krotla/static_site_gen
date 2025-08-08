@@ -1,6 +1,6 @@
 import re
 from enum import Enum
-
+MD_TITLE_PATTERN = r"^(#{1}\s{1})(.*?)$"
 MD_HEADING_PATTERN = r"^(#{1,6})\s{1}(.*?)\s*$"
 MD_CODE_PATTERN = r"(^```\n)([\s\S]*?)(^```$)"
 MD_QUOTE_PATTERN = r"^((>{1})(.*)(\n*))+"
@@ -46,3 +46,10 @@ def block_to_block_type(text_block):
         return BlockType.ORDERED_LIST
     
     return BlockType.PARAGRAPH
+
+def extract_title(markdown):
+    match = re.search(MD_TITLE_PATTERN, markdown, re.MULTILINE)
+    if not match:
+        raise Exception("No title defined in Markdown! It has to be at least one '# ' heading.")
+    title =  match.group().lstrip("# ").replace("**", "").replace("_", "").replace("`", "")
+    return title
