@@ -89,7 +89,7 @@ def markdown_to_html_node(md):
                 html_block_node = ParentNode(h_tag,children_html_nodes)
             case BlockType.QUOTE:
                 md_block_lines = md_block.splitlines()
-                md_block = " ".join([line.lstrip(">") for line in md_block_lines])
+                md_block = " ".join([line.lstrip("> ") for line in md_block_lines])
                 children_html_nodes = markdown_to_children(md_block)
                 html_block_node = ParentNode("blockquote",children_html_nodes)
             case BlockType.UNORDERED_LIST:
