@@ -8,8 +8,8 @@ from htmlnode import ParentNode, LeafNode, markdown_to_html_node
 
 def main():
     try:
-        clean_and_copy("./static", "./public")
-        generate_page("content/index.md", "template.html", "public/index.html")
+        clean_and_copy("static/", "public/")
+        generate_page_recursiv("content/", "template.html", "public/")
     except Exception as e:
         print(e)
 
@@ -50,6 +50,29 @@ def copy_dir(source, destination):
         else:
             shutil.copy(src_path, dest_path)
 
+def generate_page_recursiv(dir_path_content, template_path, dest_dir_path):
+    content_paths = list_dir_content_paths(dir_path_content)
+    for md_path in content_paths:
+        filename, file_extension = os.path.splitext(md_path)
+        if file_extension != '.md':
+            continue
+        html_path = md_path.replace(dir_path_content, dest_dir_path, 1)[:-3] + ".html"
+        generate_page(md_path, template_path, html_path)
+    
+
+def list_dir_content_paths(dir):
+    dir_content = []
+    current_dir = os.listdir(dir)
+    for item in current_dir:
+        item_path = os.path.join(dir, item)
+        if os.path.isdir(item_path):
+            subdir_content = list_dir_content_paths(item_path)
+            dir_content.extend(subdir_content)
+        else:
+            dir_content.append(item_path)
+    return dir_content
+
+
 def generate_page(from_path, template_path, dest_path):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     try:
@@ -63,7 +86,7 @@ def generate_page(from_path, template_path, dest_path):
         html_page = template.replace("{{ Title }}", title).replace("{{ Content }}", html_content)
         dest_dir_path = os.path.dirname(dest_path)
         if not os.path.exists(dest_dir_path):
-            os.mkdir(dest_dir_path)
+            os.makedirs(dest_dir_path)
         with open(dest_path,"w") as html_file:
             html_file.write(html_page)
     except Exception as e:
