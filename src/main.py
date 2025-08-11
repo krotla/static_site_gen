@@ -1,3 +1,4 @@
+import sys
 import os
 import shutil
 
@@ -7,9 +8,11 @@ from htmlnode import ParentNode, LeafNode, markdown_to_html_node
 
 
 def main():
+    basepath = "/" if len(sys.argv) != 2 else sys.argv[1] 
+
     try:
-        clean_and_copy("static/", "public/")
-        generate_page_recursiv("content/", "template.html", "public/")
+        clean_and_copy("static/", "docs/")
+        generate_page_recursiv("content/", "template.html", "docs/", basepath)
     except Exception as e:
         print(e)
 
@@ -50,14 +53,14 @@ def copy_dir(source, destination):
         else:
             shutil.copy(src_path, dest_path)
 
-def generate_page_recursiv(dir_path_content, template_path, dest_dir_path):
+def generate_page_recursiv(dir_path_content, template_path, dest_dir_path, basepath):
     content_paths = list_dir_content_paths(dir_path_content)
     for md_path in content_paths:
         filename, file_extension = os.path.splitext(md_path)
         if file_extension != '.md':
             continue
         html_path = md_path.replace(dir_path_content, dest_dir_path, 1)[:-3] + ".html"
-        generate_page(md_path, template_path, html_path)
+        generate_page(md_path, template_path, html_path, basepath)
     
 
 def list_dir_content_paths(dir):
@@ -73,7 +76,7 @@ def list_dir_content_paths(dir):
     return dir_content
 
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     try:
         with open(from_path) as md_file:
@@ -83,7 +86,11 @@ def generate_page(from_path, template_path, dest_path):
         html_content_node = markdown_to_html_node(md)
         html_content = html_content_node.to_html()
         title = extract_title(md)
-        html_page = template.replace("{{ Title }}", title).replace("{{ Content }}", html_content)
+        html_page = template \
+            .replace("{{ Title }}", title) \
+            .replace("{{ Content }}", html_content) \
+            .replace('href="/', f'href="{basepath}') \
+            .replace('src="/', f'src="{basepath}')
         dest_dir_path = os.path.dirname(dest_path)
         if not os.path.exists(dest_dir_path):
             os.makedirs(dest_dir_path)
